@@ -1,10 +1,16 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // Essencial para trocar de cenas
 
 public class GameManager : MonoBehaviour
 {
     public Fogueira fogueiraPrincipal;
     public float tempoDeJogo = 0f;
-    public float tempoParaVencer = 180f; // 3 minutos em segundos
+    public float tempoParaVencer = 180f;
+
+    [Header("Nomes das Cenas")]
+    public string cenaVitoria = "Vitoria";
+    public string cenaDerrota = "Derrota";
+
     private bool jogoTerminou = false;
 
     void Update()
@@ -13,10 +19,12 @@ public class GameManager : MonoBehaviour
 
         tempoDeJogo += Time.deltaTime;
 
+        // Condição de Vitória
         if (tempoDeJogo >= tempoParaVencer)
         {
             VencerJogo();
         }
+        // Condição de Derrota
         else if (fogueiraPrincipal != null && fogueiraPrincipal.tempoLuz <= 0)
         {
             PerderJogo();
@@ -26,12 +34,12 @@ public class GameManager : MonoBehaviour
     void VencerJogo()
     {
         jogoTerminou = true;
-        Debug.Log("VITÓRIA! Sobreviveste aos 3 minutos na Ilha de Anhatomirim!");
+        SceneManager.LoadScene(cenaVitoria);
     }
 
     void PerderJogo()
     {
         jogoTerminou = true;
-        Debug.Log("GAME OVER! A fogueira apagou e os fantasmas apanharam-te.");
+        SceneManager.LoadScene(cenaDerrota);
     }
 }

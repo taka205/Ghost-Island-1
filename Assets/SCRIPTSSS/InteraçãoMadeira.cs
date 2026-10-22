@@ -3,11 +3,13 @@ using UnityEngine;
 public class InteracaoMadeira : MonoBehaviour
 {
     public bool temMadeira = false;
-    public float raioDeAcao = 1.5f;
+
+    // Distâncias independentes
+    public float raioInteragirFogueira = 1.5f; // Pode jogar a lenha de uma distância segura
+    public float raioPegarMadeira = 0.5f;      // Precisa estar bem em cima da lenha para pegar
+
     public LayerMask layerMadeira;
     public GameObject imagemMadeiraNasCostas;
-
-    // Novo: Espaço para colocar o arquivo de som
     public AudioClip somPegarMadeira;
 
     void Update()
@@ -17,7 +19,7 @@ public class InteracaoMadeira : MonoBehaviour
             imagemMadeiraNasCostas.SetActive(temMadeira);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire1"))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             TentarInteragir();
         }
@@ -27,7 +29,8 @@ public class InteracaoMadeira : MonoBehaviour
     {
         if (temMadeira)
         {
-            Collider2D fogueira = Physics2D.OverlapCircle(transform.position, raioDeAcao);
+            // Tenta achar a fogueira num raio maior
+            Collider2D fogueira = Physics2D.OverlapCircle(transform.position, raioInteragirFogueira);
             if (fogueira != null && fogueira.CompareTag("Fogueira"))
             {
                 fogueira.GetComponent<Fogueira>().ColocarMadeira();
@@ -36,12 +39,12 @@ public class InteracaoMadeira : MonoBehaviour
         }
         else
         {
-            Collider2D madeiraNoChao = Physics2D.OverlapCircle(transform.position, raioDeAcao, layerMadeira);
+            // Tenta achar a madeira num raio bem pequeno (bem próximo)
+            Collider2D madeiraNoChao = Physics2D.OverlapCircle(transform.position, raioPegarMadeira, layerMadeira);
             if (madeiraNoChao != null && madeiraNoChao.CompareTag("Madeira"))
             {
                 temMadeira = true;
 
-                // Toca o som exatamente onde o jogador está, antes de destruir a madeira
                 if (somPegarMadeira != null)
                 {
                     AudioSource.PlayClipAtPoint(somPegarMadeira, transform.position);
@@ -50,5 +53,15 @@ public class InteracaoMadeira : MonoBehaviour
                 Destroy(madeiraNoChao.gameObject);
             }
         }
+    }
+
+    // Desenha os círculos no Unity para você ver exatamente a distância
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow; // Círculo amarelo para a fogueira
+        Gizmos.DrawWireSphere(transform.position, raioInteragirFogueira);
+
+        Gizmos.color = Color.green; // Círculo verde pequeno para pegar a lenha
+        Gizmos.DrawWireSphere(transform.position, raioPegarMadeira);
     }
 }
