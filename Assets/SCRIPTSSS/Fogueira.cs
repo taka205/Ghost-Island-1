@@ -1,41 +1,22 @@
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 public class Fogueira : MonoBehaviour
 {
-    public Light2D luz;
-    public CircleCollider2D areaSegura;
-
-    public float tempoLuz = 90f;
-    public float tempoMaximo = 120f;
-    public float raioMaximo = 8f;
+    public float tempoLuz = 30f; // Tempo inicial de luz (ajusta como preferires)
+    public float tempoMaximoLuz = 60f; // Limite máximo para a fogueira não ficar infinita
 
     void Update()
     {
-        if (tempoLuz > 0)
-        {
-            tempoLuz -= Time.deltaTime;
+        // A luz apaga 1 segundo por cada segundo real
+        tempoLuz -= Time.deltaTime;
 
-            float tamanhoDaLuz = (tempoLuz / 90f) * raioMaximo;
-
-            luz.pointLightOuterRadius = tamanhoDaLuz;
-            areaSegura.radius = tamanhoDaLuz;
-        }
-        else
-        {
-            tempoLuz = 0;
-            luz.pointLightOuterRadius = 0f;
-            areaSegura.radius = 0f;
-        }
+        // Garante que a luz não passa do limite máximo nem desce de zero
+        tempoLuz = Mathf.Clamp(tempoLuz, 0, tempoMaximoLuz);
     }
 
     public void ColocarMadeira()
     {
-        tempoLuz += 15f;
-
-        if (tempoLuz > tempoMaximo)
-        {
-            tempoLuz = tempoMaximo;
-        }
+        tempoLuz += 10f; // Adiciona 10 segundos
+        Debug.Log("Madeira adicionada! Tempo atual: " + tempoLuz);
     }
 }

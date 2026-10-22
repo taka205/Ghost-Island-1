@@ -3,31 +3,26 @@ using UnityEngine;
 public class InteracaoMadeira : MonoBehaviour
 {
     public bool temMadeira = false;
-    public float raioDeAcao = 1.5f;
+    public float raioInteragirFogueira = 1.5f;
+    public float raioPegarMadeira = 0.5f;
     public LayerMask layerMadeira;
     public GameObject imagemMadeiraNasCostas;
 
-    // Novo: Espaço para colocar o arquivo de som
+    // Novo: Espaï¿½o para colocar o arquivo de som
     public AudioClip somPegarMadeira;
 
     void Update()
     {
-        if (imagemMadeiraNasCostas != null)
-        {
-            imagemMadeiraNasCostas.SetActive(temMadeira);
-        }
+        if (imagemMadeiraNasCostas != null) imagemMadeiraNasCostas.SetActive(temMadeira);
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire1"))
-        {
-            TentarInteragir();
-        }
+        if (Input.GetKeyDown(KeyCode.E)) TentarInteragir();
     }
 
     void TentarInteragir()
     {
         if (temMadeira)
         {
-            Collider2D fogueira = Physics2D.OverlapCircle(transform.position, raioDeAcao);
+            Collider2D fogueira = Physics2D.OverlapCircle(transform.position, raioInteragirFogueira);
             if (fogueira != null && fogueira.CompareTag("Fogueira"))
             {
                 fogueira.GetComponent<Fogueira>().ColocarMadeira();
@@ -36,17 +31,11 @@ public class InteracaoMadeira : MonoBehaviour
         }
         else
         {
-            Collider2D madeiraNoChao = Physics2D.OverlapCircle(transform.position, raioDeAcao, layerMadeira);
+            Collider2D madeiraNoChao = Physics2D.OverlapCircle(transform.position, raioPegarMadeira, layerMadeira);
             if (madeiraNoChao != null && madeiraNoChao.CompareTag("Madeira"))
             {
                 temMadeira = true;
-
-                // Toca o som exatamente onde o jogador está, antes de destruir a madeira
-                if (somPegarMadeira != null)
-                {
-                    AudioSource.PlayClipAtPoint(somPegarMadeira, transform.position);
-                }
-
+                if (somPegarMadeira != null) AudioSource.PlayClipAtPoint(somPegarMadeira, transform.position);
                 Destroy(madeiraNoChao.gameObject);
             }
         }
