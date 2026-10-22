@@ -5,13 +5,22 @@ public class GeradorFantasmas : MonoBehaviour
     public GameObject fantasmaPrefab;
     public Transform[] pontosDeSpawn;
     public float tempoEntreSpawns = 5f;
-
+    public float raioSeguroFogueira = 8f;
+    public Vector2 limitesMapa = new Vector2(15f, 10f);
     private float cronometro = 0f;
+
+    void Start()
+    {
+        if (fogueira == null)
+        {
+            GameObject objFogo = GameObject.FindGameObjectWithTag("Fogueira");
+            if (objFogo != null) fogueira = objFogo.transform;
+        }
+    }
 
     void Update()
     {
         cronometro += Time.deltaTime;
-
         if (cronometro >= tempoEntreSpawns)
         {
             GerarFantasma();
@@ -21,13 +30,24 @@ public class GeradorFantasmas : MonoBehaviour
 
     void GerarFantasma()
     {
-        if (pontosDeSpawn.Length == 0 || fantasmaPrefab == null) return;
+        if (fantasmaPrefab == null) return;
+        Vector2 posicaoSorteada = Vector2.zero;
+        bool posicaoValida = false;
+        int tentativas = 0;
 
-        // Sorteia um dos pontos disponíveis
-        int indiceAleatorio = Random.Range(0, pontosDeSpawn.Length);
-        Transform pontoEscolhido = pontosDeSpawn[indiceAleatorio];
+        while (!posicaoValida && tentativas < 10)
+        {
+            float randomX = Random.Range(-limitesMapa.x, limitesMapa.x);
+            float randomY = Random.Range(-limitesMapa.y, limitesMapa.y);
+            posicaoSorteada = new Vector2(randomX, randomY);
 
-        // Cria o fantasma nesse ponto
-        Instantiate(fantasmaPrefab, pontoEscolhido.position, Quaternion.identity);
+            if (fogueira == null || Vector2.Distance(posicaoSorteada, fogueira.position) > raioSeguroFogueira)
+            {
+                posicaoValida = true;
+            }
+            tentativas++;
+        }
+
+        if (posicaoValida) Instantiate(fantasmaPrefab, posicaoSorteada, Quaternion.identity);
     }
 }
